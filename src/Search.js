@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Link } from 'react-router-dom'
+import debounce from "lodash.debounce";
 import * as BooksAPI from './BooksAPI'
 import Book from './Book'
 
@@ -9,10 +10,7 @@ function Search(props) {
     const [query, setQuery] = useState('')
     const [books, setBooks] = useState([])
 
-    //Handle query on input change
-    const handleQueryChange = (e) => {
-        const value = e.target.value;
-        setQuery(value)
+    const debouceQueryChangeHandler = useCallback(debounce((value) => { // eslint-disable-line react-hooks/exhaustive-deps
 
         //If input is empty or the api return empty query, reset books array
         if (value === '') {
@@ -20,6 +18,13 @@ function Search(props) {
         } else {
             BooksAPI.search(value).then(res => res.error ? setBooks([]) : setBooks(res))
         }
+    }, 300), []);
+
+    //Handle query on input change
+    const queryChangeHandler = (e) => {
+        const value = e.target.value;
+        setQuery(value)
+        debouceQueryChangeHandler(value);
     }
 
     //New array to map api books and my books in the home to get the shelves
@@ -35,7 +40,7 @@ function Search(props) {
                     <button className="close-search">Close</button>
                 </Link>
                 <div className="search-books-input-wrapper">
-                    <input type="text" placeholder="Search by title or author" value={query} onChange={handleQueryChange} />
+                    <input type="text" placeholder="Search by title or author" value={query} onChange={queryChangeHandler} />
                 </div>
             </div>
             <div className="search-books-results">
