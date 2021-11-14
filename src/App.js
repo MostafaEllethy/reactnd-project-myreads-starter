@@ -25,7 +25,11 @@ function BooksApp() {
     //Remove the updated book from the original list if the shelf is not 'none' add the book with the new stats
     const onUpdateBook = (book, shelf) => {
         let newBooks = books.filter(obj => obj.id !== book.id)
-        shelf !== 'none' && BooksAPI.get(book.id).then(updatedBook => setBooks(newBooks.concat(updatedBook)))
+        if (shelf === 'none') {
+            setBooks(newBooks)
+            return
+        }
+        BooksAPI.get(book.id).then(updatedBook => setBooks(newBooks.concat(updatedBook)))
     }
 
     return (
